@@ -4,7 +4,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "uthash.h"
+#include "./history.h"
+#include "../includes/uthash.h"
 
 typedef struct {
     char *command;
@@ -209,8 +210,10 @@ void execute(builtin *commands) {
 }
 
 int main() {
+    initialize_history();
     builtin *commands = NULL;
     setUpCommands(&commands);
     execute(commands);
+    save_history();
     return 0;
 }
