@@ -26,7 +26,7 @@ void display_history() {
     for (index = 0; index < history_length; index++) {
         entry = history_get(history_base + index);
         if (entry) {
-            printf("%d  %s\n", history_base + index, entry->line);
+            printf("%d  %s\n", history_base + index, entry -> line);
         }
     }
 
