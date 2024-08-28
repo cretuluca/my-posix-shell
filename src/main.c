@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "./history.h"
+#include "history.h"
 #include "../includes/uthash.h"
 
 typedef struct {
@@ -19,7 +19,7 @@ void trimSpaces(char *string) {
     FILE *fd = popen(command, "r");
 
     char buffer[256];
-    char *result = fgets(buffer, sizeof(buffer), fd);
+    fgets(buffer, sizeof(buffer), fd);
     pclose(fd);
 
     size_t len = strlen(buffer);
@@ -72,9 +72,8 @@ char *isInPath(char *argument) {
 }
 
 void setUpCommands(builtin **commands) {
-    char *commandsToAdd[] = {"exit", "echo", "type", "pwd", "cd"};
-
-    for (int i = 0; i < 5; i++) {
+    char *commandsToAdd[] = {"exit", "echo", "type", "pwd", "cd", "history"};
+    for (int i = 0; i < 6; i++) {
         addCommand(commands, commandsToAdd[i]);
     }
 }
@@ -115,11 +114,17 @@ char **tokenize(char *string) {
 }
 
 char *getInput(char *input) {
-    fflush(stdout);
-
-    fgets(input, 100, stdin);
-    input[strlen(input) - 1] = '\0';
-
+    char *line = readline("$ ");
+    if (line == NULL) {
+        strcpy(input, "exit");
+    } else {
+        strncpy(input, line, 99);
+        input[99] = '\0';
+        if (*line) {
+            add_to_history(line);
+        }
+        free(line);
+    }
     return input;
 }
 
@@ -178,10 +183,8 @@ void execute(builtin *commands) {
     char input[100];
 
     while (1) {
-        printf("$ ");
-
         getInput(input);
-        // trimSpaces(input);
+        trimSpaces(input);
 
         char **temp = tokenize(input);
 
@@ -193,12 +196,14 @@ void execute(builtin *commands) {
             char cwd[100];
             getcwd(cwd, sizeof(cwd));
             printf("%s\n", cwd);
-        } else if (strcmp(input, "exit 0") == 0) {
+        } else if (strcmp(input, "exit") == 0 || strcmp(input, "exit 0") == 0) {
             freeCommands(commands);
             freeTokens(temp);
             exit(0);
         } else if (strncmp(input, "echo ", 5) == 0) {
             printf("%s\n", input + 5);
+        } else if (strcmp(input, "history") == 0) {
+            display_history();
         } else if (handleSysUtils(temp)) {
             // handled
         } else {
