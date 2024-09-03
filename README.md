@@ -10,3 +10,17 @@ This project is a custom shell implementation in C, which provides a simplistic 
   - `pwd`: Print working directory
   - `cd`: Change directory
   - `history`: Display command history
+- Execution of system utilities (ls, grep, kill,..)
+- Command history management
+
+## Building the Project
+To build the project, run the `build.sh` script:
+
+```bash
+./build.sh
+```
+
+## Usage
+```bash
+./my_shell
+```
